@@ -60,5 +60,11 @@
             <version>${jboss-marshalling-serial.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.my.rpc</groupId>
+            <artifactId>interface</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 </project>

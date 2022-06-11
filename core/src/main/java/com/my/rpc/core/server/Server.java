@@ -12,6 +12,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
+import static com.my.rpc.core.common.cache.CommonServerCache.PROVIDER_CLASS_MAP;
+
 /**
  * @Author WWK wuwenkai97@163.com
  * @Date 2022/6/8 22:07
@@ -33,7 +35,10 @@ public class Server {
         this.serverConfig = serverConfig;
     }
 
-    public void startApplication() {
+    /**
+     * 应用启动
+     */
+    public void startApplication() throws InterruptedException {
         // 创建两个线程组：boss用于服务端accept监听, work用于IO操作
         bossGroup = new NioEventLoopGroup();
         workGroup = new NioEventLoopGroup();
@@ -62,5 +67,31 @@ public class Server {
                         socketChannel.pipeline().addLast(new ServerHandler());
                     }
                 });
+        bootstrap.bind(serverConfig.getPort()).sync();
+    }
+
+    /**
+     * 注册服务
+     * @param serviceBean 需要托管的JavaBean
+     */
+    public void registerService(Object serviceBean) {
+        if (0 == serviceBean.getClass().getInterfaces().length) {
+            throw new RuntimeException("service must had interface!");
+        }
+        Class[] classes = serviceBean.getClass().getInterfaces();
+        if (classes.length > 1) {
+            throw new RuntimeException("service must only had one interface!");
+        }
+        Class interfaceClass = classes[0];
+        PROVIDER_CLASS_MAP.put(interfaceClass.getName(), serviceBean);
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        Server server = new Server();
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setPort(9090);
+        server.setServerConfig(serverConfig);
+        server.registerService(new DataServiceImpl());
+        server.startApplication();
     }
 }
