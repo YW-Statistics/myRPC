@@ -12,6 +12,9 @@
     <modules>
         <module>core</module>
         <module>interface</module>
+        <module>provider</module>
+        <module>consumer</module>
+        <module>jmh</module>
     </modules>
 
 
