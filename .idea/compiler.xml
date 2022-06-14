@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="core" />
         <module name="interface" />
+        <module name="jmh" />
         <module name="provider" />
         <module name="consumer" />
       </profile>
