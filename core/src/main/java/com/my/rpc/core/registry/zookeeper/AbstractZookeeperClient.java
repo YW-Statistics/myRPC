@@ -1,5 +1,7 @@
 package com.my.rpc.core.registry.zookeeper;
 
+import org.apache.zookeeper.Watcher;
+
 import java.util.List;
 
 /**
@@ -92,4 +94,39 @@ public abstract class AbstractZookeeperClient {
      * 创建临时节点数据信息
      */
     public abstract void createTemporaryData(String address, String data);
+
+    /**
+     * 设置临时节点数据信息
+     */
+    public abstract void setTemporaryData(String address, String data);
+
+    /**
+     * 断开zk的客户端链接
+     */
+    public abstract void destroy();
+
+    /**
+     * 展示这个节点下面的数据
+     */
+    public abstract List<String> listNode(String address);
+
+    /**
+     * 删除节点下的数据
+     */
+    public abstract boolean deleteNode(String address);
+
+    /**
+     * 判断是否存在其他节点
+     */
+    public abstract boolean existNode(String address);
+
+    /**
+     * 监听path路径下某个节点的数据变化
+     */
+    public abstract void watchNodeData(String path, Watcher watcher);
+
+    /**
+     * 监听path路径子节点下的数据变化
+     */
+    public abstract void watchChildNodeData(String path, Watcher watcher);
 }
