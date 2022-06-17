@@ -1,12 +1,14 @@
 package com.my.rpc.core.common.event;
 
 import com.my.rpc.core.common.event.listener.ServiceUpdateListener;
+import com.my.rpc.core.common.utils.CommonUtils;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -43,6 +45,22 @@ public class RpcListenerLoader {
     }
 
     public static void sendEvent(RpcEvent rpcEvent) {
-
+        if (CommonUtils.isEmptyList(rpcListenerList)) {
+            return;
+        }
+        for (RpcListener<?> rpcListener: rpcListenerList) {
+            Class<?> type = getInterfaceT(rpcListener);
+            if (Objects.equals(type, rpcEvent.getClass())) {
+                eventThreadPool.execute(
+                        () -> {
+                            try {
+                                rpcListener.callback(rpcEvent.getData());
+                            } catch (Exception exception) {
+                                exception.printStackTrace();
+                            }
+                        }
+                );
+            }
+        }
     }
 }
