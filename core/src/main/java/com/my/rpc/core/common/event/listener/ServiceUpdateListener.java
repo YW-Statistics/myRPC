@@ -56,10 +56,14 @@ public class ServiceUpdateListener implements RpcListener<RpcUpdateEvent> {
                     Integer port = Integer.valueOf(newProviderUrl.split(":")[1]);
                     channelFutureWrapper.setHost(host);
                     channelFutureWrapper.setPort(port);
-                    ChannelFuture channelFuture = ConnectionHandler.createChannelFuture(host, port);
-                    channelFutureWrapper.setChannelFuture(channelFuture);
-                    newChannelFutureWrappers.add(channelFutureWrapper);
-                    finalUrl.add(newProviderUrl);
+                    try {
+                        ChannelFuture channelFuture = ConnectionHandler.createChannelFuture(host, port);
+                        channelFutureWrapper.setChannelFuture(channelFuture);
+                        newChannelFutureWrappers.add(channelFutureWrapper);
+                        finalUrl.add(newProviderUrl);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             finalChannelFutureWrappers.addAll(newChannelFutureWrappers);

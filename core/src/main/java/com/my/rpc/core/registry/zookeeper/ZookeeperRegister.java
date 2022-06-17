@@ -1,7 +1,6 @@
 package com.my.rpc.core.registry.zookeeper;
 
 import com.my.rpc.core.common.event.RpcEvent;
-import com.my.rpc.core.common.event.RpcListener;
 import com.my.rpc.core.common.event.RpcListenerLoader;
 import com.my.rpc.core.common.event.RpcUpdateEvent;
 import com.my.rpc.core.common.event.data.URLChangeWrapper;
@@ -10,7 +9,6 @@ import com.my.rpc.core.registry.URL;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
