@@ -2,6 +2,7 @@ package com.my.rpc.core.server;
 
 import com.my.rpc.core.common.RpcDecoder;
 import com.my.rpc.core.common.RpcEncoder;
+import com.my.rpc.core.common.config.PropertiesBootstrap;
 import com.my.rpc.core.common.config.ServerConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -66,7 +67,11 @@ public class Server {
                         socketChannel.pipeline().addLast(new ServerHandler());
                     }
                 });
-        bootstrap.bind(serverConfig.getPort()).sync();
+        bootstrap.bind(serverConfig.getServerPort()).sync();
+    }
+
+    public void initServerConfig() {
+        PropertiesBootstrap
     }
 
     /**
@@ -88,7 +93,7 @@ public class Server {
     public static void main(String[] args) throws InterruptedException {
         Server server = new Server();
         ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setPort(9090);
+        serverConfig.setServerPort(9090);
         server.setServerConfig(serverConfig);
         server.registerService(new DataServiceImpl());
         server.startApplication();

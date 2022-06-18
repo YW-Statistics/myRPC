@@ -58,7 +58,7 @@ public class Client {
                     }
                 });
         // 链接netty服务端
-        ChannelFuture channelFuture = bootstrap.connect(clientConfig.getServerAddr(), clientConfig.getPort()).sync();
+        ChannelFuture channelFuture = bootstrap.connect(clientConfig.getRegisterAddr(), clientConfig.get()).sync();
         logger.info("-------------------服务启动----------------");
         this.startClient(channelFuture);
         // 注入代理工程, 解释：通过代理类将uuid存入本地缓存
