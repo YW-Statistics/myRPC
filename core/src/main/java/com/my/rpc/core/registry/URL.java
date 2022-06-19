@@ -56,6 +56,10 @@ public class URL {
         this.params = params;
     }
 
+    public void addParameter(String key, String value) {
+        this.params.putIfAbsent(key, value);
+    }
+
     /**
      * 生成zk的提供者节点下的URL字符串
      */

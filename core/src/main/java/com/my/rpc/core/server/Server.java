@@ -4,6 +4,10 @@ import com.my.rpc.core.common.RpcDecoder;
 import com.my.rpc.core.common.RpcEncoder;
 import com.my.rpc.core.common.config.PropertiesBootstrap;
 import com.my.rpc.core.common.config.ServerConfig;
+import com.my.rpc.core.common.utils.CommonUtils;
+import com.my.rpc.core.registry.RegistryService;
+import com.my.rpc.core.registry.URL;
+import com.my.rpc.core.registry.zookeeper.ZookeeperRegister;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -13,6 +17,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import static com.my.rpc.core.common.cache.CommonServerCache.PROVIDER_CLASS_MAP;
+import static com.my.rpc.core.common.cache.CommonServerCache.PROVIDER_URL_SET;
 
 /**
  * @Author WWK wuwenkai97@163.com
@@ -26,6 +31,8 @@ public class Server {
     private static EventLoopGroup workGroup;
 
     private ServerConfig serverConfig;
+
+    private RegistryService registerService;
 
     public ServerConfig getServerConfig() {
         return serverConfig;
@@ -67,11 +74,54 @@ public class Server {
                         socketChannel.pipeline().addLast(new ServerHandler());
                     }
                 });
+        this.batchExportUrl();
         bootstrap.bind(serverConfig.getServerPort()).sync();
     }
 
+    /**
+     * 批量注册服务
+     */
+    private void batchExportUrl() {
+        Thread task = new Thread(() -> {
+            try {
+                Thread.sleep(2500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            for (URL url: PROVIDER_URL_SET) {
+                registerService.register(url);
+            }
+        });
+        task.start();
+    }
+
     public void initServerConfig() {
-        PropertiesBootstrap
+        ServerConfig serverConfig = PropertiesBootstrap.loadServerConfigFromLocal();
+        this.setServerConfig(serverConfig);
+    }
+
+    /**
+     * 暴露服务信息
+     */
+    public void exportService(Object serviceBean) {
+        if (0 == serviceBean.getClass().getInterfaces().length) {
+            throw new RuntimeException("service must had interface!");
+        }
+        Class[] classes = serviceBean.getClass().getInterfaces();
+        if (classes.length > 1) {
+            throw new RuntimeException("service must only had one interface!");
+        }
+        if (null == registerService) {
+            registerService = new ZookeeperRegister(serverConfig.getRegisterAddr());
+        }
+        Class interfaceClass = classes[0];
+        PROVIDER_CLASS_MAP.put(interfaceClass.getName(), serviceBean);
+        URL url = new URL();
+        url.setServiceName(interfaceClass.getName());
+        url.setApplicationName(serverConfig.getApplicationName());
+        url.addParameter("host", CommonUtils.getIpAddress());
+        url.addParameter("port", String.valueOf(serverConfig.getServerPort()));
+        PROVIDER_URL_SET.add(url);
     }
 
     /**
@@ -92,10 +142,8 @@ public class Server {
 
     public static void main(String[] args) throws InterruptedException {
         Server server = new Server();
-        ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setServerPort(9090);
-        server.setServerConfig(serverConfig);
-        server.registerService(new DataServiceImpl());
+        server.initServerConfig();
+        server.exportService(new DataServiceImpl());
         server.startApplication();
     }
 }

@@ -6,7 +6,13 @@ import com.my.rpc.core.common.RpcEncoder;
 import com.my.rpc.core.common.RpcInvocation;
 import com.my.rpc.core.common.RpcProtocol;
 import com.my.rpc.core.common.config.ClientConfig;
+import com.my.rpc.core.common.config.PropertiesBootstrap;
+import com.my.rpc.core.common.event.RpcListenerLoader;
+import com.my.rpc.core.common.utils.CommonUtils;
 import com.my.rpc.core.proxy.jdk.JDKProxyFactory;
+import com.my.rpc.core.registry.URL;
+import com.my.rpc.core.registry.zookeeper.AbstractRegister;
+import com.my.rpc.core.registry.zookeeper.ZookeeperRegister;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -18,7 +24,10 @@ import my.rpc.interfaces.DataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 import static com.my.rpc.core.common.cache.CommonClientCache.SEND_QUEUE;
+import static com.my.rpc.core.common.cache.CommonClientCache.SUBSCRIBE_SERVICE_LIST;
 
 /**
  * @Author WWK wuwenkai97@163.com
@@ -33,6 +42,20 @@ public class Client {
 
     private ClientConfig clientConfig;
 
+    private AbstractRegister abstractRegister;
+
+    private RpcListenerLoader rpcListenerLoader;
+
+    private Bootstrap bootstrap = new Bootstrap();
+
+    public Bootstrap getBootstrap() {
+        return bootstrap;
+    }
+
+    public void setBootstrap(Bootstrap bootstrap) {
+        this.bootstrap = bootstrap;
+    }
+
     public ClientConfig getClientConfig() {
         return clientConfig;
     }
@@ -41,10 +64,7 @@ public class Client {
         this.clientConfig = clientConfig;
     }
 
-    /**
-     * 客户端启动方法
-     */
-    public RpcReference startClientApplication() throws InterruptedException {
+    public RpcReference initClientApplication() {
         EventLoopGroup clientGroup = new NioEventLoopGroup();
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(clientGroup)
@@ -57,20 +77,52 @@ public class Client {
                         socketChannel.pipeline().addLast(new ClientHandler());
                     }
                 });
-        // 链接netty服务端
-        ChannelFuture channelFuture = bootstrap.connect(clientConfig.getRegisterAddr(), clientConfig.get()).sync();
-        logger.info("-------------------服务启动----------------");
-        this.startClient(channelFuture);
-        // 注入代理工程, 解释：通过代理类将uuid存入本地缓存
-        return new RpcReference(new JDKProxyFactory());
+        rpcListenerLoader = new RpcListenerLoader();
+        rpcListenerLoader.init();
+        this.clientConfig = PropertiesBootstrap.loadClientConfigFromLocal();
+        RpcReference rpcReference = new RpcReference(new JDKProxyFactory());
+        return rpcReference;
+    }
+
+    /**
+     * 启动服务之前预定对应的RPC服务
+     */
+    public void doSubscribeService(Class serviceBean) {
+        if (null == abstractRegister) {
+            abstractRegister = new ZookeeperRegister(clientConfig.getRegisterAddr());
+        }
+        URL url = new URL();
+        url.setApplicationName(clientConfig.getApplicationName());
+        url.setServiceName(serviceBean.getName());
+        url.addParameter("host", CommonUtils.getIpAddress());
+        abstractRegister.subscribe(url);
+    }
+
+    /**
+     * 开始和各个provider建立连接
+     */
+    public void doConnectServer() {
+        for (String providerServiceName: SUBSCRIBE_SERVICE_LIST) {
+            List<String> providerIps = abstractRegister.getProviderIps(providerServiceName);
+            for (String providerIp: providerIps) {
+                try {
+                    ConnectionHandler.connect(providerServiceName, providerIp);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            URL url = new URL();
+            url.setServiceName(providerServiceName);
+            // 客户端在此新增一个订阅功能
+            abstractRegister.subscribe(url);
+        }
     }
 
     /**
      * 开启发送线程, 该线程专门负责将数据包发送给服务端
-     * @param channelFuture Channel异步结果封装类
      */
-    private void startClient(ChannelFuture channelFuture) {
-        Thread asyncSendJob = new Thread(new AsyncSendJob(channelFuture));
+    private void startClient() {
+        Thread asyncSendJob = new Thread(new AsyncSendJob());
         asyncSendJob.start();
     }
 
@@ -78,12 +130,6 @@ public class Client {
      * 异步发送数据
      */
     private class AsyncSendJob implements Runnable {
-
-        private ChannelFuture channelFuture;
-
-        public AsyncSendJob(ChannelFuture channelFuture) {
-            this.channelFuture = channelFuture;
-        }
 
         @Override
         public void run() {
@@ -93,6 +139,7 @@ public class Client {
                     RpcInvocation data = SEND_QUEUE.take();
                     String json = JSON.toJSONString(data);
                     RpcProtocol rpcProtocol = new RpcProtocol(json.getBytes());
+                    ChannelFuture channelFuture = ConnectionHandler.getChannelFuture(data.getTargetServiceName());
                     channelFuture.channel().writeAndFlush(rpcProtocol);
                 } catch (InterruptedException exception) {
                     exception.printStackTrace();
@@ -103,15 +150,20 @@ public class Client {
 
     public static void main(String[] args) throws Throwable {
         Client client = new Client();
-        ClientConfig clientConfig = new ClientConfig();
-        clientConfig.setServerAddr("localhost");
-        clientConfig.setPort(9090);
-        client.setClientConfig(clientConfig);
-        RpcReference rpcReference = client.startClientApplication();
+        RpcReference rpcReference = client.initClientApplication();
         DataService dataService = rpcReference.get(DataService.class);
-        for (int i = 0;i < 10;i++) {
-            String result = dataService.sendData("test");
-            System.out.println(result);
+        client.doSubscribeService(DataService.class);
+        ConnectionHandler.setBootstrap(client.getBootstrap());
+        client.doConnectServer();
+        client.startClient();
+        for (int i = 0;i < 100;i++) {
+            try {
+                String result = dataService.sendData("test");
+                System.out.println(result);
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
