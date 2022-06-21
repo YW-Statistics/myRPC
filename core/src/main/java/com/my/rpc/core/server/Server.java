@@ -124,22 +124,6 @@ public class Server {
         PROVIDER_URL_SET.add(url);
     }
 
-    /**
-     * 注册服务
-     * @param serviceBean 需要托管的JavaBean
-     */
-    public void registerService(Object serviceBean) {
-        if (0 == serviceBean.getClass().getInterfaces().length) {
-            throw new RuntimeException("service must had interface!");
-        }
-        Class[] classes = serviceBean.getClass().getInterfaces();
-        if (classes.length > 1) {
-            throw new RuntimeException("service must only had one interface!");
-        }
-        Class interfaceClass = classes[0];
-        PROVIDER_CLASS_MAP.put(interfaceClass.getName(), serviceBean);
-    }
-
     public static void main(String[] args) throws InterruptedException {
         Server server = new Server();
         server.initServerConfig();

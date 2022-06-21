@@ -50,7 +50,7 @@ public class ConnectionHandler {
         channelFutureWrapper.setChannelFuture(channelFuture);
         SERVER_ADDRESS.add(providerIp);
         List<ChannelFutureWrapper> channelFutureWrapperList = CONNECT_MAP.get(providerServiceName);
-        if (!CommonUtils.isEmptyList(channelFutureWrapperList)) {
+        if (CommonUtils.isEmptyList(channelFutureWrapperList)) {
             channelFutureWrapperList = new ArrayList<>();
         }
         channelFutureWrapperList.add(channelFutureWrapper);

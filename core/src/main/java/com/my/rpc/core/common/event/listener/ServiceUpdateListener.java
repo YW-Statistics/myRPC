@@ -7,9 +7,6 @@ import com.my.rpc.core.common.event.RpcUpdateEvent;
 import com.my.rpc.core.common.event.data.URLChangeWrapper;
 import com.my.rpc.core.common.utils.CommonUtils;
 import io.netty.channel.ChannelFuture;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -23,8 +20,6 @@ import static com.my.rpc.core.common.cache.CommonClientCache.CONNECT_MAP;
  * @Description 事件推送实现类
  **/
 public class ServiceUpdateListener implements RpcListener<RpcUpdateEvent> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceUpdateListener.class);
 
     @Override
     public void callback(Object t) {

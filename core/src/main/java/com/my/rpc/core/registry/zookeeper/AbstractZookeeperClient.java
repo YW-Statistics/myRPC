@@ -26,7 +26,7 @@ public abstract class AbstractZookeeperClient {
     public AbstractZookeeperClient(String zkAddress, Integer baseSleepTimes, Integer maxRetryTimes) {
         this.zkAddress = zkAddress;
         if (null == baseSleepTimes) {
-            baseSleepTimes = 3000;
+            this.baseSleepTimes = 3000;
         }else {
             this.baseSleepTimes = baseSleepTimes;
         }

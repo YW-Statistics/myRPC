@@ -15,9 +15,9 @@ public class CommonUtils {
 
     public static boolean isEmptyList(List list) {
         if (null == list || list.size() == 0) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**

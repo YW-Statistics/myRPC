@@ -66,7 +66,7 @@ public class URL {
     public static String buildProvideUrlStr(URL url) {
         String host = url.getParams().get("host");
         String port = url.getParams().get("port");
-        return new String((url.getApplicationName() + ";" + url.getServiceName() + ";" + host + ";" + port + ";"
+        return new String((url.getApplicationName() + ";" + url.getServiceName() + ";" + host + ":" + port + ";"
                 + System.currentTimeMillis()).getBytes(), StandardCharsets.UTF_8);
     }
 

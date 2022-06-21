@@ -6,6 +6,7 @@ import com.my.rpc.core.common.event.RpcUpdateEvent;
 import com.my.rpc.core.common.event.data.URLChangeWrapper;
 import com.my.rpc.core.registry.RegistryService;
 import com.my.rpc.core.registry.URL;
+import my.rpc.interfaces.DataService;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
@@ -23,7 +24,7 @@ public class ZookeeperRegister extends AbstractRegister implements RegistryServi
     private String ROOT = "/rpc";
 
     private String getProviderPath(URL url) {
-        return ROOT + "/" + url.getServiceName() + "/provider/" + url.getParams().get("host") + "/" + url.getParams().get("port");
+        return ROOT + "/" + url.getServiceName() + "/provider/" + url.getParams().get("host") + ":" + url.getParams().get("port");
     }
 
     private String getConsumerPath(URL url) {

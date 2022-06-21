@@ -21,8 +21,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import my.rpc.interfaces.DataService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -35,8 +33,6 @@ import static com.my.rpc.core.common.cache.CommonClientCache.SUBSCRIBE_SERVICE_L
  * @Description 客户端
  **/
 public class Client {
-
-    private Logger logger = LoggerFactory.getLogger(Client.class);
 
     public static EventLoopGroup clientGroup = new NioEventLoopGroup();
 
@@ -66,7 +62,6 @@ public class Client {
 
     public RpcReference initClientApplication() {
         EventLoopGroup clientGroup = new NioEventLoopGroup();
-        Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(clientGroup)
                 .channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<SocketChannel>() {
@@ -80,8 +75,7 @@ public class Client {
         rpcListenerLoader = new RpcListenerLoader();
         rpcListenerLoader.init();
         this.clientConfig = PropertiesBootstrap.loadClientConfigFromLocal();
-        RpcReference rpcReference = new RpcReference(new JDKProxyFactory());
-        return rpcReference;
+        return new RpcReference(new JDKProxyFactory());
     }
 
     /**
@@ -104,6 +98,7 @@ public class Client {
     public void doConnectServer() {
         for (String providerServiceName: SUBSCRIBE_SERVICE_LIST) {
             List<String> providerIps = abstractRegister.getProviderIps(providerServiceName);
+            System.out.println(providerIps);
             for (String providerIp: providerIps) {
                 try {
                     ConnectionHandler.connect(providerServiceName, providerIp);
@@ -114,7 +109,7 @@ public class Client {
             URL url = new URL();
             url.setServiceName(providerServiceName);
             // 客户端在此新增一个订阅功能
-            abstractRegister.subscribe(url);
+            abstractRegister.doAfterSubscribe(url);
         }
     }
 

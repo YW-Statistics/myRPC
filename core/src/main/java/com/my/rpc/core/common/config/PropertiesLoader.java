@@ -19,7 +19,7 @@ public class PropertiesLoader {
 
     private static Map<String, String> propertiesMap = new HashMap<>();
 
-    private static String DEFAULT_PROPERTIES_FILE = "D:/Privacy/Wen/Learning/Java/myRPC/src/main/resources/rpc.properties";
+    private static String DEFAULT_PROPERTIES_FILE = "D:\\Privacy\\Wen\\Learning\\Java\\myRPC\\core\\src\\main\\resources\\rpc.properties";
 
     /**
      * 加载配置
