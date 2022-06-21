@@ -1,5 +1,6 @@
 package com.my.rpc.core.common.cache;
 
+import com.my.rpc.core.common.ChannelFuturePollingRef;
 import com.my.rpc.core.common.ChannelFutureWrapper;
 import com.my.rpc.core.common.RpcInvocation;
 import com.my.rpc.core.registry.URL;
@@ -33,4 +34,11 @@ public class CommonClientCache {
     public static Set<String> SERVER_ADDRESS = new HashSet<>();
 
     public static Map<String, List<URL>> URL_MAP = new ConcurrentHashMap<>();
+
+    /**
+     * 随机请求服务
+     */
+    public static Map<String, ChannelFutureWrapper[]> SERVICE_ROUTER_MAP = new HashMap<>();
+
+    public static ChannelFuturePollingRef CHANNEL_FUTURE_POLLING_REF = new ChannelFuturePollingRef();
 }
