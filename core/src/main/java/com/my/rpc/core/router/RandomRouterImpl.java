@@ -71,7 +71,7 @@ public class RandomRouterImpl implements Router {
         for (int i = 0;i < finalChannelFutureWrapperList.length;i++) {
             finalChannelFutureWrapperList[i] = channelFutureWrapperList.get(finalArr[i]);
         }
-
+        SERVICE_ROUTER_MAP.put(url.getServiceName(), finalChannelFutureWrapperList);
     }
 
     private Integer[] createRandomArr(Integer[] weightArr) {

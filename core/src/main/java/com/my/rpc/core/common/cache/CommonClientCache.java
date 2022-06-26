@@ -24,7 +24,7 @@ public class CommonClientCache {
     /**
      * 服务名称列表
      */
-    public static List<String> SUBSCRIBE_SERVICE_LIST = new ArrayList<>();
+    public static List<URL> SUBSCRIBE_SERVICE_LIST = new ArrayList<>();
 
     /**
      * 每次远程调用从这里寻找服务提供者

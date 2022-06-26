@@ -1,5 +1,6 @@
 package com.my.rpc.core.registry.zookeeper;
 
+import com.alibaba.fastjson.JSON;
 import com.my.rpc.core.common.event.RpcEvent;
 import com.my.rpc.core.common.event.RpcListenerLoader;
 import com.my.rpc.core.common.event.RpcUpdateEvent;
@@ -81,8 +82,17 @@ public class ZookeeperRegister extends AbstractRegister implements RegistryServi
     @Override
     public void doAfterSubscribe(URL url) {
         // 监听是否有新的服务注册
-        String newServerNodePath = ROOT + "/" + url.getServiceName() + "/provider";
+        String servicePath = url.getParams().get("servicePath");
+        String newServerNodePath = ROOT + "/" + servicePath;
         watchChildNodeData(newServerNodePath);
+        String providerIpStrJson = url.getParams().get("providerIps");
+        List<String> providerIps = JSON.parseObject(providerIpStrJson, List.class);
+        for (String providerIp: providerIps) {
+            this.watchNodeDataChange(ROOT + "/" + servicePath + providerIp);
+        }
+    }
+
+    public void watchNodeDataChange(String newServerNodePath) {
     }
 
     private void watchChildNodeData(String newServerNodePath) {

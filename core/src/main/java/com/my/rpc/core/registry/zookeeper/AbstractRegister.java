@@ -49,4 +49,5 @@ public abstract class AbstractRegister implements RegistryService {
      * 获取提供者的ip列表
      */
     public abstract List<String> getProviderIps(String serviceName);
+
 }
