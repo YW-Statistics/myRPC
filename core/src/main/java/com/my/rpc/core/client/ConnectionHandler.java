@@ -2,6 +2,7 @@ package com.my.rpc.core.client;
 
 import com.my.rpc.core.common.ChannelFutureWrapper;
 import com.my.rpc.core.common.utils.CommonUtils;
+import com.my.rpc.core.router.Selector;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 
@@ -9,8 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static com.my.rpc.core.common.cache.CommonClientCache.CONNECT_MAP;
-import static com.my.rpc.core.common.cache.CommonClientCache.SERVER_ADDRESS;
+import static com.my.rpc.core.common.cache.CommonClientCache.*;
 
 /**
  * @Author WWK wuwenkai97@163.com
@@ -83,6 +83,8 @@ public class ConnectionHandler {
         if (CommonUtils.isEmptyList(channelFutureWrapperList)) {
             throw new RuntimeException("no provider for " + providerServiceName);
         }
-        return channelFutureWrapperList.get(new Random().nextInt(channelFutureWrapperList.size())).getChannelFuture();
+        Selector selector = new Selector();
+        selector.setProviderServiceName(providerServiceName);
+        return ROUTER.select(selector).getChannelFuture();
     }
 }

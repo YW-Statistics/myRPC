@@ -13,6 +13,16 @@ public class ClientConfig {
 
     private String proxyType;
 
+    private String routerStrategy;
+
+    public String getRouterStrategy() {
+        return routerStrategy;
+    }
+
+    public void setRouterStrategy(String routerStrategy) {
+        this.routerStrategy = routerStrategy;
+    }
+
     public String getApplicationName() {
         return applicationName;
     }

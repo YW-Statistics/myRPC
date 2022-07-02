@@ -4,6 +4,7 @@ import com.my.rpc.core.common.ChannelFuturePollingRef;
 import com.my.rpc.core.common.ChannelFutureWrapper;
 import com.my.rpc.core.common.RpcInvocation;
 import com.my.rpc.core.registry.URL;
+import com.my.rpc.core.router.Router;
 
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -41,4 +42,6 @@ public class CommonClientCache {
     public static Map<String, ChannelFutureWrapper[]> SERVICE_ROUTER_MAP = new HashMap<>();
 
     public static ChannelFuturePollingRef CHANNEL_FUTURE_POLLING_REF = new ChannelFuturePollingRef();
+
+    public static Router ROUTER;
 }
