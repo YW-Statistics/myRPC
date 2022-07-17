@@ -15,6 +15,9 @@ public class PropertiesBootstrap {
     public static final String REGISTER_ADDRESS = "rpc.registerAddr";
     public static final String APPLICATION_NAME = "rpc.applicationName";
     public static final String PROXY_TYPE = "rpc.proxyType";
+    public static final String ROUTER_STRATEGY = "rpc.routerStrategy";
+    public static final String SERVER_SERIALIZE = "rpc.serverSerialize";
+    public static final String CLIENT_SERIALIZE = "rpc.clientSerialize";
 
     public static ServerConfig loadServerConfigFromLocal() {
         try {
@@ -26,6 +29,7 @@ public class PropertiesBootstrap {
         serverConfig.setServerPort(PropertiesLoader.getPropertiesInteger(SERVER_PORT));
         serverConfig.setApplicationName(PropertiesLoader.getPropertiesStr(APPLICATION_NAME));
         serverConfig.setRegisterAddr(PropertiesLoader.getPropertiesStr(REGISTER_ADDRESS));
+        serverConfig.setServerSerialize(PropertiesBootstrap.SERVER_SERIALIZE);
         return serverConfig;
     }
 
@@ -39,6 +43,8 @@ public class PropertiesBootstrap {
         clientConfig.setApplicationName(PropertiesLoader.getPropertiesStr(APPLICATION_NAME));
         clientConfig.setRegisterAddr(PropertiesLoader.getPropertiesStr(REGISTER_ADDRESS));
         clientConfig.setProxyType(PropertiesLoader.getPropertiesStr(PROXY_TYPE));
+        clientConfig.setRouterStrategy(PropertiesBootstrap.ROUTER_STRATEGY);
+        clientConfig.setClientSerialize(PropertiesBootstrap.CLIENT_SERIALIZE);
         return clientConfig;
     }
 }

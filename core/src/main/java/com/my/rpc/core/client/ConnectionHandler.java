@@ -2,6 +2,8 @@ package com.my.rpc.core.client;
 
 import com.my.rpc.core.common.ChannelFutureWrapper;
 import com.my.rpc.core.common.utils.CommonUtils;
+import com.my.rpc.core.registry.URL;
+import com.my.rpc.core.registry.zookeeper.ProviderNodeInfo;
 import com.my.rpc.core.router.Selector;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -44,9 +46,13 @@ public class ConnectionHandler {
         String host = providerAddress[0];
         int port = Integer.parseInt(providerAddress[1]);
         ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
+        String providerURLInfo = URL_MAP.get(providerServiceName).get(providerIp);
+        ProviderNodeInfo providerNodeInfo = URL.buildURLFromUrlStr(providerURLInfo);
         ChannelFutureWrapper channelFutureWrapper = new ChannelFutureWrapper();
         channelFutureWrapper.setHost(host);
         channelFutureWrapper.setPort(port);
+        channelFutureWrapper.setWeight(providerNodeInfo.getWeight());
+        channelFutureWrapper.setGroup(providerNodeInfo.getGroup());
         channelFutureWrapper.setChannelFuture(channelFuture);
         SERVER_ADDRESS.add(providerIp);
         List<ChannelFutureWrapper> channelFutureWrapperList = CONNECT_MAP.get(providerServiceName);

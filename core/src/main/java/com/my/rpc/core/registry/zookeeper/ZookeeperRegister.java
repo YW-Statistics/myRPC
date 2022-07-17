@@ -11,7 +11,9 @@ import my.rpc.interfaces.DataService;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author WWK wuwenkai97@163.com
@@ -117,6 +119,17 @@ public class ZookeeperRegister extends AbstractRegister implements RegistryServi
     @Override
     public List<String> getProviderIps(String serviceName) {
         return this.zkClient.getChildrenData(ROOT + "/" + serviceName + "/provider");
+    }
+
+    @Override
+    public Map<String, String> getServiceWeightMap(String serviceName) {
+        List<String> nodeDataList = this.zkClient.getChildrenData(ROOT + "/" + serviceName + "/provider");
+        Map<String, String> result = new HashMap<>();
+        for (String ipAndHost : nodeDataList) {
+            String childData = this.zkClient.getNodeData(ROOT + "/" + serviceName + "/provider/" + ipAndHost);
+            result.put(ipAndHost, childData);
+        }
+        return result;
     }
 
 }

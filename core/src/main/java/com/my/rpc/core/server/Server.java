@@ -8,6 +8,10 @@ import com.my.rpc.core.common.utils.CommonUtils;
 import com.my.rpc.core.registry.RegistryService;
 import com.my.rpc.core.registry.URL;
 import com.my.rpc.core.registry.zookeeper.ZookeeperRegister;
+import com.my.rpc.core.serialize.fastjson.FastJsonSerializeFactory;
+import com.my.rpc.core.serialize.hessian.HessianSerializeFactory;
+import com.my.rpc.core.serialize.jdk.JdkSerializeFactory;
+import com.my.rpc.core.serialize.kryo.KryoSerializeFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -16,8 +20,9 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-import static com.my.rpc.core.common.cache.CommonServerCache.PROVIDER_CLASS_MAP;
-import static com.my.rpc.core.common.cache.CommonServerCache.PROVIDER_URL_SET;
+import static com.my.rpc.core.common.cache.CommonServerCache.*;
+import static com.my.rpc.core.common.constants.RpcConstants.*;
+import static com.my.rpc.core.common.constants.RpcConstants.KRYO_SERIALIZE_TYPE;
 
 /**
  * @Author WWK wuwenkai97@163.com
@@ -98,6 +103,24 @@ public class Server {
     public void initServerConfig() {
         ServerConfig serverConfig = PropertiesBootstrap.loadServerConfigFromLocal();
         this.setServerConfig(serverConfig);
+        String serverSerialize = serverConfig.getServerSerialize();
+        switch (serverSerialize) {
+            case JDK_SERIALIZE_TYPE:
+                SERVER_SERIALIZE_FACTORY = new JdkSerializeFactory();
+                break;
+            case FAST_JSON_SERIALIZE_TYPE:
+                SERVER_SERIALIZE_FACTORY = new FastJsonSerializeFactory();
+                break;
+            case HESSIAN2_SERIALIZE_TYPE:
+                SERVER_SERIALIZE_FACTORY = new HessianSerializeFactory();
+                break;
+            case KRYO_SERIALIZE_TYPE:
+                SERVER_SERIALIZE_FACTORY = new KryoSerializeFactory();
+                break;
+            default:
+                throw new RuntimeException("no match serialize type for " + serverSerialize);
+        }
+        System.out.println("serverSerialize is " + serverSerialize);
     }
 
     /**

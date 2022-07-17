@@ -4,6 +4,7 @@ import com.my.rpc.core.registry.RegistryService;
 import com.my.rpc.core.registry.URL;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.my.rpc.core.common.cache.CommonClientCache.SUBSCRIBE_SERVICE_LIST;
 import static com.my.rpc.core.common.cache.CommonServerCache.PROVIDER_URL_SET;
@@ -50,4 +51,11 @@ public abstract class AbstractRegister implements RegistryService {
      */
     public abstract List<String> getProviderIps(String serviceName);
 
+    /**
+     * 获取服务的权重信息
+     *
+     * @param serviceName
+     * @return <ip:port --> urlString>,<ip:port --> urlString>,<ip:port --> urlString>,<ip:port --> urlString>
+     */
+    public abstract Map<String, String> getServiceWeightMap(String serviceName);
 }

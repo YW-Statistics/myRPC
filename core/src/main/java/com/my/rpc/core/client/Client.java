@@ -15,6 +15,10 @@ import com.my.rpc.core.registry.zookeeper.AbstractRegister;
 import com.my.rpc.core.registry.zookeeper.ZookeeperRegister;
 import com.my.rpc.core.router.RandomRouterImpl;
 import com.my.rpc.core.router.RotateRouterImpl;
+import com.my.rpc.core.serialize.fastjson.FastJsonSerializeFactory;
+import com.my.rpc.core.serialize.hessian.HessianSerializeFactory;
+import com.my.rpc.core.serialize.jdk.JdkSerializeFactory;
+import com.my.rpc.core.serialize.kryo.KryoSerializeFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -25,10 +29,10 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import my.rpc.interfaces.DataService;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.my.rpc.core.common.cache.CommonClientCache.*;
-import static com.my.rpc.core.common.constants.RpcConstants.RANDOM_ROUTER_TYPE;
-import static com.my.rpc.core.common.constants.RpcConstants.ROTATE_ROUTER_TYPE;
+import static com.my.rpc.core.common.constants.RpcConstants.*;
 
 /**
  * @Author WWK wuwenkai97@163.com
@@ -71,6 +75,23 @@ public class Client {
         }else if (ROTATE_ROUTER_TYPE.equals(routerStrategy)) {
             ROUTER = new RotateRouterImpl();
         }
+        String clientSerialize = clientConfig.getClientSerialize();
+        switch (clientSerialize) {
+            case JDK_SERIALIZE_TYPE:
+                CLIENT_SERIALIZE_FACTORY = new JdkSerializeFactory();
+                break;
+            case FAST_JSON_SERIALIZE_TYPE:
+                CLIENT_SERIALIZE_FACTORY = new FastJsonSerializeFactory();
+                break;
+            case HESSIAN2_SERIALIZE_TYPE:
+                CLIENT_SERIALIZE_FACTORY = new HessianSerializeFactory();
+                break;
+            case KRYO_SERIALIZE_TYPE:
+                CLIENT_SERIALIZE_FACTORY = new KryoSerializeFactory();
+                break;
+            default:
+                throw new RuntimeException("no match serialize type for " + clientSerialize);
+        }
     }
 
     public RpcReference initClientApplication() {
@@ -102,6 +123,8 @@ public class Client {
         url.setApplicationName(clientConfig.getApplicationName());
         url.setServiceName(serviceBean.getName());
         url.addParameter("host", CommonUtils.getIpAddress());
+        Map<String, String> result = abstractRegister.getServiceWeightMap(serviceBean.getName());
+        URL_MAP.put(serviceBean.getName(), result);
         abstractRegister.subscribe(url);
     }
 

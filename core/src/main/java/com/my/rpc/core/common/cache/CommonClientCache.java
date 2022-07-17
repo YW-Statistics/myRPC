@@ -5,6 +5,7 @@ import com.my.rpc.core.common.ChannelFutureWrapper;
 import com.my.rpc.core.common.RpcInvocation;
 import com.my.rpc.core.registry.URL;
 import com.my.rpc.core.router.Router;
+import com.my.rpc.core.serialize.SerializeFactory;
 
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -34,7 +35,7 @@ public class CommonClientCache {
 
     public static Set<String> SERVER_ADDRESS = new HashSet<>();
 
-    public static Map<String, List<URL>> URL_MAP = new ConcurrentHashMap<>();
+    public static Map<String, Map<String, String>> URL_MAP = new ConcurrentHashMap<>();
 
     /**
      * 随机请求服务
@@ -44,4 +45,9 @@ public class CommonClientCache {
     public static ChannelFuturePollingRef CHANNEL_FUTURE_POLLING_REF = new ChannelFuturePollingRef();
 
     public static Router ROUTER;
+
+    /**
+     * 序列化
+     */
+    public static SerializeFactory CLIENT_SERIALIZE_FACTORY;
 }

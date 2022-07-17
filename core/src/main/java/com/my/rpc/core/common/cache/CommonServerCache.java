@@ -1,6 +1,8 @@
 package com.my.rpc.core.common.cache;
 
+import com.my.rpc.core.common.config.ServerConfig;
 import com.my.rpc.core.registry.URL;
+import com.my.rpc.core.serialize.SerializeFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,5 +19,9 @@ public class CommonServerCache {
     public static final Map<String, Object> PROVIDER_CLASS_MAP = new HashMap<>();
 
     public static final Set<URL> PROVIDER_URL_SET = new HashSet<>();
+
+    public static SerializeFactory SERVER_SERIALIZE_FACTORY;
+
+    public static ServerConfig SERVER_CONFIG;
 
 }

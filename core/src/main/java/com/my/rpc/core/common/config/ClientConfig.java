@@ -15,6 +15,16 @@ public class ClientConfig {
 
     private String routerStrategy;
 
+    private String clientSerialize;
+
+    public String getClientSerialize() {
+        return clientSerialize;
+    }
+
+    public void setClientSerialize(String clientSerialize) {
+        this.clientSerialize = clientSerialize;
+    }
+
     public String getRouterStrategy() {
         return routerStrategy;
     }
